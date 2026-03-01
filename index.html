@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>AI Career Predictor</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+    <style>
+        *{
+            margin:0;
+            padding:0;
+            box-sizing:border-box;
+            font-family:'Poppins',sans-serif;
+        }
+
+        body{
+            min-height:100vh;
+            display:flex;
+            justify-content:center;
+            align-items:center;
+            background: linear-gradient(135deg,#667eea,#764ba2);
+            transition:0.5s;
+        }
+
+        body.dark{
+            background: linear-gradient(135deg,#141e30,#243b55);
+        }
+
+        .container{
+            width:95%;
+            max-width:700px;
+            padding:35px;
+            border-radius:20px;
+            background: rgba(255,255,255,0.15);
+            backdrop-filter: blur(20px);
+            box-shadow:0 10px 40px rgba(0,0,0,0.3);
+            color:white;
+            position:relative;
+        }
+
+        .toggle{
+            position:absolute;
+            top:15px;
+            right:20px;
+            cursor:pointer;
+            font-size:14px;
+        }
+
+        .header{
+            text-align:center;
+            margin-bottom:25px;
+        }
+
+        .header h1{
+            font-size:30px;
+            font-weight:bold;
+            text-shadow:0 0 15px #fff;
+        }
+
+        label{
+            font-size:14px;
+        }
+
+        input,select{
+            width:100%;
+            padding:10px;
+            margin:6px 0 15px 0;
+            border:none;
+            border-radius:8px;
+            outline:none;
+        }
+
+        button{
+            width:100%;
+            padding:12px;
+            border:none;
+            border-radius:10px;
+            background:#ff6b6b;
+            color:white;
+            font-size:16px;
+            cursor:pointer;
+            transition:0.3s;
+        }
+
+        button:hover{
+            background:#ff4757;
+            transform:scale(1.05);
+        }
+
+        .result{
+            margin-top:20px;
+            padding:20px;
+            border-radius:15px;
+            background:rgba(0,0,0,0.35);
+        }
+
+        canvas{
+            margin-top:15px;
+        }
+
+        @media(max-width:500px){
+            .header h1{font-size:22px;}
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+
+    <div class="toggle" onclick="toggleMode()">🌙 Toggle Mode</div>
+
+    <div class="header">
+        <h1>🤖 AI Career Predictor</h1>
+        <p>Smart AI-Based Career Recommendation System</p>
+    </div>
+
+    <form method="POST">
+        <label>CGPA</label>
+        <input type="number" step="0.1" name="cgpa" required>
+
+        <label>Programming Skill</label>
+        <input type="number" name="prog" min="1" max="10" required>
+
+        <label>Communication Skill</label>
+        <input type="number" name="comm" min="1" max="10" required>
+
+        <label>Analytical Skill</label>
+        <input type="number" name="analytical" min="1" max="10" required>
+
+        <label>Creativity Level</label>
+        <input type="number" name="creativity" min="1" max="10" required>
+
+        <label>Internship</label>
+        <select name="internship">
+            <option value="0">No</option>
+            <option value="1">Yes</option>
+        </select>
+
+        <label>Interest Area</label>
+        <select name="interest">
+            <option value="0">Data Science</option>
+            <option value="1">Web Development</option>
+            <option value="2">Business Analysis</option>
+            <option value="3">UI/UX</option>
+            <option value="4">Cybersecurity</option>
+        </select>
+
+        <button type="submit">Predict Career 🚀</button>
+    </form>
+
+    {% if result %}
+    <div class="result">
+        <h3 id="typing"></h3>
+        <p>💡 {{ reason }}</p>
+        <p>📊 Confidence: {{ confidence }}%</p>
+        <canvas id="myChart"></canvas>
+    </div>
+    {% endif %}
+
+</div>
+
+<!-- GLOBAL SCRIPT (OUTSIDE IF BLOCK) -->
+<script>
+
+function toggleMode(){
+    document.body.classList.toggle("dark");
+}
+
+{% if result %}
+
+// Typing effect
+let text = "🎯 Recommended Career: {{ result }}";
+let i = 0;
+
+function typeWriter(){
+    if(i < text.length){
+        document.getElementById("typing").innerHTML += text.charAt(i);
+        i++;
+        setTimeout(typeWriter, 40);
+    }
+}
+typeWriter();
+
+// Chart
+const confidence = Number("{{ confidence }}");
+const remaining = 100 - confidence;
+
+var ctx = document.getElementById('myChart');
+
+new Chart(ctx, {
+    type: 'doughnut',
+    data: {
+        labels: ['Confidence', 'Remaining'],
+        datasets: [{
+            data: [confidence, remaining],
+            backgroundColor: ['#00ff99','#cccccc']
+        }]
+    },
+    options:{
+        plugins:{legend:{display:false}}
+    }
+});
+
+{% endif %}
+
+</script>
+
+</body>
+</html>
